@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>miniMap</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <canvas width="300" height="150" id="field">Обновите браузер.</canvas>
+
+    <div id="buttons">
+      <button id="save">Сохранить</button>
+      <button id="clear">Очистить</button>
+    </div>
+
+    <br />
+
+    <div id="palette">
+      <div class="color active" id="color-1"></div>
+      <div class="color" id="color-2"></div>
+      <div class="color" id="color-3"></div>
+      <div class="color" id="color-4"></div>
+      <div class="color" id="color-5"></div>
+    </div>
+
+    <div id="brushes">
+      <div class="brushes active" id="brush-thin"></div>
+      <div class="brushes" id="brush-normal"></div>
+      <div class="brushes" id="brush-bold"></div>
+    </div>
+
+    <script>
+      var coords;
+      var isDrawing;
+
+      var field = document.getElementById("field");
+      var ctx = field.getContext("2d");
+
+      ctx.beginPath();
+      ctx.strokeRect(0, 0, field.width, field.height);
+      ctx.closePath();
+
+      field.addEventListener("mousedown", function (event) {
+        isDrawing = true;
+        ctx.beginPath();
+        ctx.moveTo(
+          event.pageX - field.offsetLeft,
+          event.pageY - field.offsetTop
+        );
+
+        field.addEventListener("mousemove", paint);
+
+        function paint(event) {
+          if (isDrawing == true) {
+            var x = event.pageX - field.offsetLeft;
+            var y = event.pageY - field.offsetTop;
+            ctx.lineTo(x, y);
+            ctx.stroke();
+          }
+        }
+
+        field.addEventListener("mouseup", function () {
+          field.removeEventListener("mousemove", paint);
+          isDrawing = false;
+        });
+      });
+
+      document.addEventListener("click", function (event) {
+        if (!event.target.id) return;
+
+        if (event.target.classList.contains("color")) {
+          let color = event.target.id;
+
+          for (let color of document.querySelectorAll(".color")) {
+            if (color.classList.contains("active")) {
+              color.classList.remove("active");
+            }
+          }
+
+          event.target.classList.add("active");
+
+          switch (color) {
+            case "color-1":
+              ctx.strokeStyle = "rgb(23, 104, 23)";
+              break;
+
+            case "color-2":
+              ctx.strokeStyle = "rgb(104, 23, 23)";
+              break;
+
+            case "color-3":
+              ctx.strokeStyle = "rgb(226, 213, 23)";
+              break;
+
+            case "color-4":
+              ctx.strokeStyle = " rgb(23, 45, 104)";
+              break;
+
+            case "color-5":
+              ctx.strokeStyle = "rgb(104, 23, 80)";
+              break;
+          }
+        }
+
+        if (event.target.classList.contains("brushes")) {
+          let brush = event.target.id;
+
+          for (let brush of document.querySelectorAll(".brushes")) {
+            if (brush.classList.contains("active")) {
+              brush.classList.remove("active");
+            }
+          }
+
+          event.target.classList.add("active");
+
+          switch (brush) {
+            case "brush-thin":
+              ctx.lineWidth = 2;
+              break;
+
+            case "brush-normal":
+              ctx.lineWidth = 5;
+              break;
+
+            case "brush-bold":
+              ctx.lineWidth = 10;
+              break;
+          }
+        }
+      });
+
+      save.addEventListener("click", function (event) {
+        localStorage.setItem("coords", field.toDataURL());
+      });
+
+      clear.addEventListener("click", function (event) {
+        ctx.clearRect(0.51, 0.51, field.width - 2, field.height - 2);
+      });
+
+      function draw(e) {
+        var x = e.pageX - canvas.offsetLeft;
+        var y = e.pageY - canvas.offsetTop;
+        context.lineTo(x, y);
+        context.stroke();
+      }
+
+      window.onload = function () {
+        ctx.strokeStyle = "rgb(23, 104, 23)";
+        ctx.lineWidth = 2;
+
+        let lastSave = localStorage.getItem("coords");
+        let img = new Image();
+        img.src = lastSave;
+        img.onload = function () {
+          ctx.drawImage(img, 0, 0);
+        };
+      };
+    </script>
+  </body>
+</html>
